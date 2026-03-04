@@ -9,7 +9,7 @@ def VanderPolModel(
     eulerPositionValues = [np.array([x0, y0])]
     midpointPositionValues = [np.array([x0, y0])]
     numSteps = int(endTime / dt)
-
+    print("VC1")
     for _ in range(numSteps):
         # Gets the dx/dt and dy/dt functions with the parameters so we can time step the model
         # The euler method requires a dx_dt and dy_dt function with two parameters (x, y)
@@ -26,7 +26,7 @@ def VanderPolModel(
         
         eulerPositionValues.append(np.array([eulerX, eulerY]))
         midpointPositionValues.append(np.array([midpointX,midpointY]))
-
+    print("VC2")
     # Return the two lists of position values as numpy arrays
     return np.array(eulerPositionValues), np.array(midpointPositionValues)
 
@@ -73,7 +73,12 @@ if __name__ == "__main__":
         os.makedirs("VanderPol")
 
     fig.savefig("VanderPol/vanderpol.png", dpi=300)
+print("Checkpoint1")
 
+print(midpointXValues)
+print(midpointYValues)
+
+'''
 # Section 1.2 Convergence of the midpoint method
 # I am going to define the parameters for the time stepping scheme
 mu = 10
@@ -81,34 +86,38 @@ a = 0
 b = 0
 x0 = 2
 y0 = 0
-dt = 0.00000001
-endTime = 10
+dt = 0.000001
+endTime = 1
 params = ModelParams(0, mu, 0, 0)
-
+print("Checkpoint 2")
 # Setting the initial arrays
 Error = []
-dt = 0.00000001
+dtA = []
 
 # This finds all of the values for the given paraemters up to endTime = 10
-RefArray, yRefArray = VanderPolModel(2.0, 0.0, dt, 10.0, params) 
+RefArray, yRefArray = VanderPolModel(x0, y0, dt, endTime, params) 
 
 # These are defining my reference value
 xRefSol = RefArray[-1][0]
 yRefSol = RefArray[-1][1]
 print("before loop") 
 
-for j in range (6): 
+
+for j in range (4): 
     dt = dt*10 
-    TempArray = VanderPolModel(2.0, 0.0, dt, 10.0, params)
+    TempArray = VanderPolModel(x0, y0, dt, endTime, params)
     xTempSol = TempArray[-1][0]
     yTempSol = TempArray[-1][1]
     tempError = ((xRefSol - xTempSol)**0.5 + (yRefSol - yTempSol)**2)**0.5
     Error.append(tempError) 
-    dt.append(dt) 
+    dtA.append(dt) 
 
-ax.set_xscale("log", base=10)
-ax.set_yscale("log", base=10) 
-ax.plot(Error, dt)
+if __name__ == "__main__":
+    axs.plot(np.log(Error), np.log(dtA))
+    if not os.path.exists("VanderPol"):
+        os.makedirs("VanderPol")
+    fig.savefig("VanderPol/error_midpoint.png", dpi=300)
 
+print(np.log(Error), np.log(dtA))
     
-    
+'''
