@@ -4,12 +4,10 @@ import os
 from helpers import *
 
 def VanderPolModel(
-    x0: float, y0: float, dt: float, endTime: float, params: ModelParams
-) -> tuple[float, float]:
+    x0: float, y0: float, dt: float, numSteps: int, params: ModelParams
+) -> tuple[np.array, np.array]:
     eulerPositionValues = [np.array([x0, y0])]
     midpointPositionValues = [np.array([x0, y0])]
-    numSteps = int(endTime / dt)
-    print("VC1")
     for _ in range(numSteps):
         # Gets the dx/dt and dy/dt functions with the parameters so we can time step the model
         # The euler method requires a dx_dt and dy_dt function with two parameters (x, y)
@@ -26,14 +24,15 @@ def VanderPolModel(
         
         eulerPositionValues.append(np.array([eulerX, eulerY]))
         midpointPositionValues.append(np.array([midpointX,midpointY]))
-    print("VC2")
     # Return the two lists of position values as numpy arrays
     return np.array(eulerPositionValues), np.array(midpointPositionValues)
 
-'''
 # Main function
 # This code here checks if the file is being run directly and not imported as a module
 if __name__ == "__main__":
+    """
+    Section 1.1 Time-Stepping
+    """
     # Define the parameters for the Van der Pol model
     mu = 10
     a = 0
@@ -41,15 +40,15 @@ if __name__ == "__main__":
     I = 0
     x0 = 2
     y0 = 0
-    dt = 0.1
     endTime = 30
+    numSteps = 10000
 
     # Create the parameters for the Van der Pol model
     params = ModelParams(I, mu, a, b)
 
     # Run the Van der Pol model
     eulerPositions, midpointPositions = VanderPolModel(
-        x0, y0, dt, endTime, params
+        x0, y0, endTime / numSteps, numSteps, params
     )
 
     # Plot the positions on a graph
@@ -72,71 +71,51 @@ if __name__ == "__main__":
     if not os.path.exists("VanderPol"):
         os.makedirs("VanderPol")
 
-    fig.savefig("VanderPol/vanderpol.png", dpi=300)
-print("Checkpoint1")
-'''
+    fig.savefig("VanderPol/vanderpol_comparison.png", dpi=300)
+    plt.close()
 
-# Section 1.2 Convergence of the midpoint method
-# I am going to define the parameters for the time stepping scheme
-mu = 10
-a = 0
-b = 0
-x0 = 2
-y0 = 0
-dt = 0.0000001
-endTime = 0.7
-params = ModelParams(0, mu, 0, 0)
-print("Checkpoint 2")
-# Setting the initial arrays
-Error = []
-dtA = []
+    """
+    Section 1.2 Convergence of the midpoint method
+    """
+    fig, axs = plt.subplots()
 
-# This finds all of the values for the given paraemters up to endTime = 10
-eulerPositionsRef, midpointPositionsRef = VanderPolModel(x0, y0, dt, endTime, params)
+    mu = 10
+    a = 0
+    b = 0
+    x0 = 2
+    y0 = 0
+    numSteps = 100000
+    endTime = 10
+    params = ModelParams(0, mu, 0, 0)
+    # Setting the initial arrays
 
-# These are defining my reference values
-xRef = midpointPositionsRef[-1, 0] 
-yRef = midpointPositionsRef[-1, 1]
+    # This finds all of the values for the given paraemters up to endTime = 10
+    eulerPositionsRef, midpointPositionsRef = VanderPolModel(x0, y0, endTime / numSteps, numSteps, params)
 
-print("before loop") 
-e1, m1 = VanderPolModel(x0, y0, 0.0001, endTime, params)
-x1 = m1[-1][0]
-y1 = m1[-1][1]
-err1 = float(((xRef -x1)**2 + (yRef -y1)**2)**0.5)
-e2, m2 = VanderPolModel(x0, y0, 0.001, endTime, params)
-x2 = m2[-1][0]
-y2 = m2[-1][1]
-err2 = float(((xRef -x2)**2 + (yRef -y2)**2)**0.5)
-e3, m3 = VanderPolModel(x0, y0, 0.01, endTime, params)
-x3 = m3[-1][0]
-y3 = m3[-1][0]
-err3 = float(((xRef -x3)**2 + (yRef -y3)**2)**0.5)
-e4, m4 = VanderPolModel(x0, y0, 0.1, endTime, params)
-x4 = m4[-1][0]
-y4 = m4[-1][1]
-err4 = float(((xRef -x4)**2 + (yRef -y4)**2)**0.5)
+    # These are defining my reference values
+    referenceFinalPosition = midpointPositionsRef[-1]
 
-error = np.array[err1, err2, err3, err4]
-h = np.array[0.0001, 0.001, 0.01, 0.1]
+    # Generates the values from 10^2 to 10^4
+    numStepsValues = np.logspace(2, 4, 10, dtype=int)
 
-plt.loglog(error, h)
-plt.show()
-'''
-for j in range (10): 
-    dt2 = 0.000001 + 0.005*j
-    eulerPositionsTemp, midpointPositionsTemp = VanderPolModel(x0, y0, dt2, endTime, params)
-    xTempSol = midpointPositionsTemp[-1][0]
-    yTempSol = midpointPositionsTemp[-1][1]
-    tempError = ((xRef - xTempSol)**2 + (yRef - yTempSol)**2)**0.5
-    Error.append(tempError) 
-    dtA.append(dt2) 
+    # Define lists for the plot
+    dtValues = endTime / numStepsValues
+    errors = []
+    for numSteps in numStepsValues:
+        eulerPositions, midpointPositions = VanderPolModel(x0, y0, endTime / numSteps, numSteps, params)
+        finalPosition = midpointPositions[-1]
+        err = np.linalg.norm(referenceFinalPosition - finalPosition)
+        errors.append(err)
 
-if __name__ == "__main__":
-    axs.plot(np.log10(Error), np.log10(dtA))
+    axs.loglog(dtValues, errors)
+    axs.set_xlabel("h (time step)")
+    axs.set_ylabel("Error")
+    axs.set_title("Log-Log Plot of Error vs h")
+
+    # Save the figure
+    # Check if the directory exists, if not create it
     if not os.path.exists("VanderPol"):
         os.makedirs("VanderPol")
-    fig.savefig("VanderPol/error_midpoint3.png", dpi=300)
-'''
 
-print("I'm finished")
-    
+    fig.savefig("VanderPol/vanderpol_convergence.png", dpi=300)
+    plt.close()
