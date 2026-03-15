@@ -183,9 +183,15 @@ def vdp2_dy_dt(x, y, mu):
 
 
 plt.plot(t,x)
-plt.plot(t,y, linestyle='--')
+plt.plot(t,y)
 plt.xlabel("t")
-plt.ylabel("x(t)")
-plt.legend(["x(t)", "y(t)"])
+plt.ylabel("")                           #what y label?
+plt.legend(["x(t)", "y(t)"])             #better label? and add title?
 plt.show()
 
+
+plt.plot(x,y)
+plt.xlabel("x")
+plt.ylabel("y")
+plt.title("Phase plane of y against x")       #better title?
+plt.show()
