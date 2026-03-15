@@ -116,12 +116,13 @@ x4 = m4[-1][0]
 y4 = m4[-1][1]
 err4 = float(((xRef -x4)**2 + (yRef -y4)**2)**0.5)
 
+'''
 error = np.array[err1, err2, err3, err4]
 h = np.array[0.0001, 0.001, 0.01, 0.1]
 
 plt.loglog(error, h)
 plt.show()
-'''
+
 for j in range (10): 
     dt2 = 0.000001 + 0.005*j
     eulerPositionsTemp, midpointPositionsTemp = VanderPolModel(x0, y0, dt2, endTime, params)
@@ -139,5 +140,52 @@ if __name__ == "__main__":
 '''
 
 print("I'm finished")
+
+
+x0 = 0.01
+y0 = 0.01
+T = 40         #total time
+h = 0.001      #time step size
+mu = 4         #set mu values 
+
+def dx_dt (x,y):
+    return vdp2_dx_dt(x, y, mu)
+
+def dy_dt (x,y):
+    return vdp2_dy_dt(x, y, mu)
+
+
+def VanderPolModel2(x0, y0, T, h, mu):
+    eulerPositions, midpointPositions = VanderPolModel(x0, y0, h, T, params) 
     
-#hello
+
+    #define ts, xs, ys
+    
+    #define time array
+    t = np.linspace(0, T, len(midpointPositions))
+
+    # define x(t) and y(t) from midpoint method
+    x = midpointPositions[:, 0]
+    y = midpointPositions[:, 1]
+
+    return t, x, y
+    
+
+t, x, y = VanderPolModel2(x0, y0, T, h, mu)
+
+print("working")
+
+def vdp2_dx_dt(x, y, mu):
+    return (x-(1/3)*x**3 - y)
+
+def vdp2_dy_dt(x, y, mu):
+    return ((1/mu)*x)
+
+
+plt.plot(t,x)
+plt.plot(t,y, linestyle='--')
+plt.xlabel("t")
+plt.ylabel("x(t)")
+plt.legend(["x(t)", "y(t)"])
+plt.show()
+
