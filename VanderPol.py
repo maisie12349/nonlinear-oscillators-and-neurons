@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import os
 from helpers import *
 
+
 def VanderPolModel(
     x0: float, y0: float, dt: float, endTime: float, params: ModelParams
 ) -> tuple[float, float]:
@@ -14,8 +15,11 @@ def VanderPolModel(
         # Gets the dx/dt and dy/dt functions with the parameters so we can time step the model
         # The euler method requires a dx_dt and dy_dt function with two parameters (x, y)
         # So by using dx_dtWithParams and dy_dtWithParams, we can pass the parameters (I, mu, a, b) to the functions
-        dx_dt = dx_dtWithParams(params.I)
-        dy_dt = dy_dtWithParams(params.mu, params.a, params.b)
+        def dx_dt(x, y):
+            return x - (1/3)*x**3 - y
+        
+        def dy_dt(x, y):
+            return (1/params.mu) * x
 
         prevEulerPosition = eulerPositionValues[-1]
         prevMidpointPosition = midpointPositionValues[-1]
@@ -29,6 +33,7 @@ def VanderPolModel(
     print("VC2")
     # Return the two lists of position values as numpy arrays
     return np.array(eulerPositionValues), np.array(midpointPositionValues)
+
 
 '''
 # Main function
@@ -144,9 +149,9 @@ print("I'm finished")
 
 x0 = 0.01
 y0 = 0.01
-T = 40         #total time
+T = 30        #total time
 h = 0.001      #time step size
-mu = 4         #set mu values 
+muValues = [0.1,4,100]       #set mu values 
 
 def dx_dt (x,y):
     return vdp2_dx_dt(x, y, mu)
@@ -156,8 +161,9 @@ def dy_dt (x,y):
 
 
 def VanderPolModel2(x0, y0, T, h, mu):
+    # change vales of params = ModelParams(I, mu, a, b)
+    params = ModelParams(0, mu, 0, 0)
     eulerPositions, midpointPositions = VanderPolModel(x0, y0, h, T, params) 
-    
 
     #define ts, xs, ys
     
@@ -173,25 +179,27 @@ def VanderPolModel2(x0, y0, T, h, mu):
 
 t, x, y = VanderPolModel2(x0, y0, T, h, mu)
 
-print("working")
+'''print("working")'''
 
-def vdp2_dx_dt(x, y, mu):
-    return (x-(1/3)*x**3 - y)
-
-def vdp2_dy_dt(x, y, mu):
-    return ((1/mu)*x)
-
-
-plt.plot(t,x)
-plt.plot(t,y)
+plt.figure()
+for mu in muValues:
+    t, x, y = VanderPolModel2(x0, y0, T, h, mu)
+    plt.plot(t,x, label=f"x(t), mu={mu}")  #add labels for each mu value
+    plt.plot(t,y, linestyle='--', label=f"y(t), mu={mu}")
 plt.xlabel("t")
 plt.ylabel("")                           #what y label?
-plt.legend(["x(t)", "y(t)"])             #better label? and add title?
+plt.legend()                             #add title?
+plt.grid(True)
 plt.show()
 
 
-plt.plot(x,y)
+plt.figure()
+for mu in muValues:
+    t, x, y = VanderPolModel2(x0, y0, T, h, mu)
+    plt.plot(x,y, label=f"mu={mu}")
 plt.xlabel("x")
 plt.ylabel("y")
 plt.title("Phase plane of y against x")       #better title?
+plt.legend()
+plt.grid(True)
 plt.show()
