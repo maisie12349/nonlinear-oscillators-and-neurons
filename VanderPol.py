@@ -184,8 +184,8 @@ t, x, y = VanderPolModel2(x0, y0, T, h, mu)
 plt.figure()
 for mu in muValues:
     t, x, y = VanderPolModel2(x0, y0, T, h, mu)
-    plt.plot(t,x, label=f"x(t), mu={mu}")  #add labels for each mu value
-    plt.plot(t,y, linestyle='--', label=f"y(t), mu={mu}")
+    plt.plot(t,x, label=f"x(t), μ={mu}")  #add labels for each mu value
+    plt.plot(t,y, linestyle='--', label=f"y(t), μ={mu}")
 plt.xlabel("t")
 plt.ylabel("")                           #what y label?
 plt.legend()                             #add title?
@@ -196,10 +196,23 @@ plt.show()
 plt.figure()
 for mu in muValues:
     t, x, y = VanderPolModel2(x0, y0, T, h, mu)
-    plt.plot(x,y, label=f"mu={mu}")
+    plt.plot(x,y, label=f"μ={mu}")
 plt.xlabel("x")
 plt.ylabel("y")
-plt.title("Phase plane of y against x")       #better title?
-plt.legend()
+plt.title("Phase plane of trajectories and nullclines")       #better title?
 plt.grid(True)
+
+#plot y nullcline at x=0
+plt.axvline(x=0, color="red", linestyle='--', label="y-nullcline")
+
+#plot x nullcline at y=x-(1/3)x^3
+#plt.plot(x, x-(1/3)*x**3 , color='purple', linestyle='--', label="x-nullcline")
+
+# x-nullcline: y = x - x^3/3
+xGrid = np.linspace(-3, 3, 400)   # choose a nice symmetric range
+yNullcline = xGrid - (1/3)*xGrid**3
+plt.plot(xGrid, yNullcline, color="purple", linestyle="--", label="x-nullcline")
+
+plt.legend()
 plt.show()
+
