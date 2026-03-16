@@ -1,14 +1,16 @@
-import numpy as np 
+import numpy as np
 import matplotlib.pyplot as plt
 import os
 from helpers import *
 
+
 def VanderPolModel(
     x0: float, y0: float, dt: float, numSteps: int, params: ModelParams
-) -> tuple[np.array, np.array]:
+) -> tuple[np.array[float, float], np.array[float, float], np.array[float]]:
+
     eulerPositionValues = [np.array([x0, y0])]
     midpointPositionValues = [np.array([x0, y0])]
-    dt = []
+    timeValues = [0]
     for _ in range(numSteps):
         # Gets the dx/dt and dy/dt functions with the parameters so we can time step the model
         # The euler method requires a dx_dt and dy_dt function with two parameters (x, y)
@@ -18,16 +20,21 @@ def VanderPolModel(
 
         prevEulerPosition = eulerPositionValues[-1]
         prevMidpointPosition = midpointPositionValues[-1]
-
+        prevTime = timeValues[-1]
         # Run the euler method with the previously calculated position and the parameters
-        eulerX, eulerY = euler_step_2d(prevEulerPosition[0], prevEulerPosition[1], dt, dx_dt, dy_dt)
-        midpointX, midpointY = midpoint_step_2d(prevMidpointPosition[0], prevMidpointPosition[1], dt, dx_dt, dy_dt)
-        
+        eulerX, eulerY = euler_step_2d(
+            prevEulerPosition[0], prevEulerPosition[1], dt, dx_dt, dy_dt
+        )
+        midpointX, midpointY = midpoint_step_2d(
+            prevMidpointPosition[0], prevMidpointPosition[1], dt, dx_dt, dy_dt
+        )
+        time = prevTime + dt
+        timeValues.append(time)
         eulerPositionValues.append(np.array([eulerX, eulerY]))
-        midpointPositionValues.append(np.array([midpointX,midpointY]))
-        dt.append(_*dt)
+        midpointPositionValues.append(np.array([midpointX, midpointY]))
     # Return the two lists of position values as numpy arrays
-    return np.array(eulerPositionValues), np.array(midpointPositionValues), dt
+    return np.array(eulerPositionValues), np.array(midpointPositionValues), np.array(timeValues)
+
 
 # Main function
 # This code here checks if the file is being run directly and not imported as a module
@@ -49,20 +56,20 @@ if __name__ == "__main__":
     params = ModelParams(I, mu, a, b)
 
     # Run the Van der Pol model
-    eulerPositions, midpointPositions, time1 = VanderPolModel(
+    eulerPositions, midpointPositions, _ = VanderPolModel(
         x0, y0, endTime / numSteps, numSteps, params
     )
 
     # Plot the positions on a graph
     eulerXValues = eulerPositions[:, 0]
     eulerYValues = eulerPositions[:, 1]
-    midpointXValues = midpointPositions[:, 0] 
+    midpointXValues = midpointPositions[:, 0]
     midpointYValues = midpointPositions[:, 1]
 
     fig, axs = plt.subplots()
 
-    axs.plot(eulerXValues, eulerYValues, color = "darkblue", label = "Euler")
-    axs.plot(midpointXValues, midpointYValues, linestyle = "--", color = "red", label = "Midpoint")
+    axs.plot(eulerXValues, eulerYValues, color="darkblue", label="Euler")
+    axs.plot(midpointXValues, midpointYValues, linestyle="--", color="red", label="Midpoint")
 
     axs.set_title("Van der Pol: Euler & Midpoint")
     axs.set_xlabel("X")
@@ -92,7 +99,9 @@ if __name__ == "__main__":
     # Setting the initial arrays
 
     # This finds all of the values for the given paraemters up to endTime = 10
-    eulerPositionsRef, midpointPositionsRef, time2 = VanderPolModel(x0, y0, endTime / numSteps, numSteps, params)
+    eulerPositionsRef, midpointPositionsRef, _ = VanderPolModel(
+        x0, y0, endTime / numSteps, numSteps, params
+    )
 
     # These are defining my reference values
     referenceFinalPosition = midpointPositionsRef[-1]
@@ -104,7 +113,9 @@ if __name__ == "__main__":
     dtValues = endTime / numStepsValues
     errors = []
     for numSteps in numStepsValues:
-        eulerPositions, midpointPositions, time3 = VanderPolModel(x0, y0, endTime / numSteps, numSteps, params)
+        eulerPositions, midpointPositions, _ = VanderPolModel(
+            x0, y0, endTime / numSteps, numSteps, params
+        )
         finalPosition = midpointPositions[-1]
         err = np.linalg.norm(referenceFinalPosition - finalPosition)
         errors.append(err)
