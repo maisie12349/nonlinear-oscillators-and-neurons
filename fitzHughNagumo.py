@@ -37,7 +37,7 @@ def fitzHughNagumoModel(
 if __name__ == "__main__":
     setFont()
     # Define the parameters for the FitzHugh-Nagumo model
-    IValues = np.linspace(0, 2, 3)
+    IValues = [0.2, 1.0, 1.8]
     mu = 10
     a = 0.8
     b = 0.7
@@ -123,10 +123,12 @@ if __name__ == "__main__":
         axs.set_title(f"I = {I} FitzHugh-Nagumo Model Phase Portrait")
 
         fig.savefig(
-            f"FitzHughNagumo/PhasePortrait/fitzHughNagumo_I={I}.png", dpi=300, bbox_inches="tight"
+            f"FitzHughNagumo/PhasePortrait/fitzHughNagumo_I={I}.png",
+            dpi=300,
+            bbox_inches="tight",
         )
         plt.close()
-    
+
     xLimits = (0, 70)
     yLimits = (-4, 4)
     endTime = xLimits[1]
