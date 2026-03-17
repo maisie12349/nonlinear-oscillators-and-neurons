@@ -56,9 +56,38 @@ def _dx_dt(x: float, y: float, I: float) -> float:
 def _dy_dt(x: float, y: float, mu: float, a: float, b: float) -> float:
     return 1 / mu * (x - a * y + b)
 
+def xNullclineWithParams(I: float) -> Callable[[float], float]:
+    """
+    Returns a function that calculates the x nullcline
+    """
+    def xNullcline(x: float) -> float:
+        return x - 1 / 3 * x**3 + I
+    return xNullcline
+
+def yNullclineWithParams(a: float, b: float) -> Callable[[float], float]:
+    """
+    Returns a function that calculates the y nullcline
+    """
+    def yNullcline(x: float) -> float:
+        return (x + b) / a
+    return yNullcline
+
 class ModelParams:
     def __init__(self, I: float, mu: float, a: float, b: float):
         self.I = I
         self.mu = mu
         self.a = a
         self.b = b
+
+def setFont():
+    import matplotlib.pyplot as plt
+    import matplotlib.font_manager as fm
+    import matplotlib
+    import os
+
+    _font_path = os.path.join(
+        matplotlib.get_data_path(), "fonts", "ttf", "STIXGeneral.ttf"
+    )
+    fm.fontManager.addfont(_font_path)
+    _prop = fm.FontProperties(fname=_font_path)
+    plt.rcParams["font.family"] = _prop.get_name()
