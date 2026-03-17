@@ -33,19 +33,6 @@ def fitzHughNagumoModel(
     return np.array(positionValues), np.array(timeValues)
 
 
-def plotFormatting(
-    axs: plt.Axes, xLimits: tuple[float, float], yLimits: tuple[float, float]
-):
-    axs.set_xlim(xLimits)
-    axs.set_ylim(yLimits)
-    axs.set_xlabel("x(t)")
-    axs.set_ylabel("y(t)")
-    axs.grid(True, color="gray", alpha=0.2)
-    axs.set_aspect("equal")
-    axs.set_xticks(np.arange(xLimits[0], xLimits[1] + 0.1, 1))
-    axs.set_yticks(np.arange(yLimits[0], yLimits[1] + 0.1, 1))
-
-
 # Main function
 if __name__ == "__main__":
     setFont()
@@ -69,11 +56,16 @@ if __name__ == "__main__":
     }
 
     # Check if the directory exists, if not create it
-    if not os.path.exists("FitzHughNagumo"):
-        os.makedirs("FitzHughNagumo")
+    if not os.path.exists("FitzHughNagumo/PhasePortrait"):
+        os.makedirs("FitzHughNagumo/PhasePortrait")
+    if not os.path.exists("FitzHughNagumo/TimeSeries"):
+        os.makedirs("FitzHughNagumo/TimeSeries")
 
     # Run the FitzHugh-Nagumo model for each value of I
     for index, I in enumerate(IValues):
+        """
+        Phase portrait plot
+        """
         fig, axs = plt.subplots()
 
         # Create the parameters for the FitzHugh-Nagumo model
@@ -120,9 +112,57 @@ if __name__ == "__main__":
 
         axs.legend(loc="upper right")
 
-        plotFormatting(axs, xLimits, yLimits)
+        axs.set_xlim(xLimits)
+        axs.set_ylim(yLimits)
+        axs.set_xlabel("x(t)")
+        axs.set_ylabel("y(t)")
+        axs.grid(True, color="gray", alpha=0.2)
+        axs.set_aspect("equal")
+        axs.set_xticks(np.arange(xLimits[0], xLimits[1] + 0.01, 1))
+        axs.set_yticks(np.arange(yLimits[0], yLimits[1] + 0.01, 1))
         axs.set_title(f"I = {I} FitzHugh-Nagumo Model Phase Portrait")
 
         fig.savefig(
-            f"FitzHughNagumo/fitzHughNagumo_I={I}.png", dpi=300, bbox_inches="tight"
+            f"FitzHughNagumo/PhasePortrait/fitzHughNagumo_I={I}.png", dpi=300, bbox_inches="tight"
         )
+        plt.close()
+    
+    xLimits = (0, 70)
+    yLimits = (-4, 4)
+    endTime = xLimits[1]
+    xAxisValues = np.linspace(xLimits[0], xLimits[1], 100)
+
+    for index, I in enumerate(IValues):
+        """
+        Time series plot
+        """
+        fig, axs = plt.subplots()
+
+        # Create the parameters for the FitzHugh-Nagumo model
+        params = ModelParams(I, mu, a, b)
+        # Run the FitzHugh-Nagumo model for the current value of I
+        eulerPositionValues, timeValues = fitzHughNagumoModel(
+            x0, y0, dt, endTime, params
+        )
+        # Plot the position values on a graph
+        eulerXValues = eulerPositionValues[:, 0]
+        eulerYValues = eulerPositionValues[:, 1]
+
+        axs.plot(timeValues, eulerXValues, color="#FCBA56", label=f"Trajectory")
+        axs.plot(timeValues, eulerYValues, color="#51C0E8", label="y(t)")
+        axs.legend(loc="upper right")
+        axs.set_xlim(xLimits)
+        axs.set_ylim(yLimits)
+        axs.set_xlabel("x(t)")
+        axs.set_ylabel("y(t)")
+        axs.grid(True, color="gray", alpha=0.2)
+        axs.set_xticks(np.arange(xLimits[0], xLimits[1] + 0.01, 10))
+        axs.set_yticks(np.arange(yLimits[0], yLimits[1] + 0.01, 2))
+        axs.set_title(f"I = {I} FitzHugh-Nagumo Model Time Series")
+
+        fig.savefig(
+            f"FitzHughNagumo/TimeSeries/fitzHughNagumo_I={I}_timeSeries.png",
+            dpi=300,
+            bbox_inches="tight",
+        )
+        plt.close()
