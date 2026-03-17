@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import shutil
+
 # Import the helpers module
 from helpers import *
 
@@ -41,13 +42,21 @@ if __name__ == "__main__":
     mu = 10
     a = 0.8
     b = 0.7
-    x0 = 2
-    y0 = 0
+    x0 = -1
+    y0 = -1
     dt = 0.1
     endTime = 100
     xLimits = (-3, 4)
     yLimits = (-2, 3.5)
     xAxisValues = np.linspace(xLimits[0], xLimits[1], 100)
+    vectorFieldStepSize = 0.4
+    xVectorFieldValues = np.arange(
+        xLimits[0], xLimits[1] + vectorFieldStepSize, vectorFieldStepSize
+    )
+    yVectorFieldValues = np.arange(
+        yLimits[0], yLimits[1] + vectorFieldStepSize, vectorFieldStepSize
+    )
+    X, Y = np.meshgrid(xVectorFieldValues, yVectorFieldValues)
 
     colors = {
         0: ["#62A1A4", "#568C8F"],
@@ -110,6 +119,18 @@ if __name__ == "__main__":
             zorder=5,
         )
 
+        dx_dt = dx_dtWithParams(params.I)
+        dy_dt = dy_dtWithParams(params.mu, params.a, params.b)
+
+        F = dx_dt(X, Y)
+        G = dy_dt(X, Y)
+
+        magnitude = np.sqrt(F**2 + G**2)
+        F_hat = F / magnitude
+        G_hat = G / magnitude
+
+        axs.quiver(X, Y, F_hat, G_hat, color="silver", zorder=1, scale=40, width=0.003)
+
         axs.legend(loc="upper right")
 
         axs.set_xlim(xLimits)
@@ -150,13 +171,13 @@ if __name__ == "__main__":
         eulerXValues = eulerPositionValues[:, 0]
         eulerYValues = eulerPositionValues[:, 1]
 
-        axs.plot(timeValues, eulerXValues, color="#FCBA56", label=f"Trajectory")
+        axs.plot(timeValues, eulerXValues, color="#FCBA56", label="x(t)")
         axs.plot(timeValues, eulerYValues, color="#51C0E8", label="y(t)")
         axs.legend(loc="upper right")
         axs.set_xlim(xLimits)
         axs.set_ylim(yLimits)
-        axs.set_xlabel("x(t)")
-        axs.set_ylabel("y(t)")
+        axs.set_xlabel("Time")
+        axs.set_ylabel("Trajectory")
         axs.grid(True, color="gray", alpha=0.2)
         axs.set_xticks(np.arange(xLimits[0], xLimits[1] + 0.01, 10))
         axs.set_yticks(np.arange(yLimits[0], yLimits[1] + 0.01, 2))
