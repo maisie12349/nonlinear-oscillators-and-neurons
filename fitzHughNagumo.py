@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-
+import shutil
 # Import the helpers module
 from helpers import *
 
@@ -55,11 +55,11 @@ if __name__ == "__main__":
         2: ["#AD84FF", "#843EB9"],
     }
 
-    # Check if the directory exists, if not create it
-    if not os.path.exists("FitzHughNagumo/PhasePortrait"):
-        os.makedirs("FitzHughNagumo/PhasePortrait")
-    if not os.path.exists("FitzHughNagumo/TimeSeries"):
-        os.makedirs("FitzHughNagumo/TimeSeries")
+    # Clean the generated directory
+    if os.path.exists("FitzHughNagumo/Generated"):
+        shutil.rmtree("FitzHughNagumo/Generated")
+    os.makedirs("FitzHughNagumo/Generated/PhasePortrait")
+    os.makedirs("FitzHughNagumo/Generated/TimeSeries")
 
     # Run the FitzHugh-Nagumo model for each value of I
     for index, I in enumerate(IValues):
@@ -120,10 +120,10 @@ if __name__ == "__main__":
         axs.set_aspect("equal")
         axs.set_xticks(np.arange(xLimits[0], xLimits[1] + 0.01, 1))
         axs.set_yticks(np.arange(yLimits[0], yLimits[1] + 0.01, 1))
-        axs.set_title(f"I = {I} FitzHugh-Nagumo Model Phase Portrait")
+        axs.set_title(f"I = {I:.2f} FitzHugh-Nagumo Model Phase Portrait")
 
         fig.savefig(
-            f"FitzHughNagumo/PhasePortrait/fitzHughNagumo_I={I}.png",
+            f"FitzHughNagumo/Generated/PhasePortrait/fitzHughNagumo_I={I:.2f}.png",
             dpi=300,
             bbox_inches="tight",
         )
@@ -160,10 +160,10 @@ if __name__ == "__main__":
         axs.grid(True, color="gray", alpha=0.2)
         axs.set_xticks(np.arange(xLimits[0], xLimits[1] + 0.01, 10))
         axs.set_yticks(np.arange(yLimits[0], yLimits[1] + 0.01, 2))
-        axs.set_title(f"I = {I} FitzHugh-Nagumo Model Time Series")
+        axs.set_title(f"I = {I:.2f} FitzHugh-Nagumo Model Time Series")
 
         fig.savefig(
-            f"FitzHughNagumo/TimeSeries/fitzHughNagumo_I={I}_timeSeries.png",
+            f"FitzHughNagumo/Generated/TimeSeries/fitzHughNagumo_I={I:.2f}_timeSeries.png",
             dpi=300,
             bbox_inches="tight",
         )
