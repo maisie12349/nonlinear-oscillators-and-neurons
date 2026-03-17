@@ -149,15 +149,9 @@ print("I'm finished")
 
 x0 = 0.01
 y0 = 0.01
-T = 30        #total time
-h = 0.001      #time step size
-muValues = [0.1,4,100]       #set mu values 
-
-def dx_dt (x,y):
-    return vdp2_dx_dt(x, y, mu)
-
-def dy_dt (x,y):
-    return vdp2_dy_dt(x, y, mu)
+h = 0.001
+T = 40
+muValues = [0.1 , 4, 100]
 
 
 def VanderPolModel2(x0, y0, T, h, mu):
@@ -175,44 +169,132 @@ def VanderPolModel2(x0, y0, T, h, mu):
     y = midpointPositions[:, 1]
 
     return t, x, y
-    
-
+   
+#define t, x, y
 t, x, y = VanderPolModel2(x0, y0, T, h, mu)
 
-'''print("working")'''
 
-plt.figure()
+#plot x and y against t 
 for mu in muValues:
+    T = 0
+    if mu == 0.1:
+        T=25
+    if mu == 4:
+        T=50
+    if mu == 100:
+        T=1000
     t, x, y = VanderPolModel2(x0, y0, T, h, mu)
-    plt.plot(t,x, label=f"x(t), μ={mu}")  #add labels for each mu value
+    plt.figure()
+    plt.plot(t,x, label=f"x(t), μ={mu}")       #add labels for each mu value
     plt.plot(t,y, linestyle='--', label=f"y(t), μ={mu}")
-plt.xlabel("t")
-plt.ylabel("")                           #what y label?
-plt.legend()                             #add title?
-plt.grid(True)
+    plt.xlabel("t")
+    plt.ylabel("solutions")            
+    plt.title(f"Variation of x(t) and y(t) against time for μ={mu}")     
+    plt.grid(True)                                  #add grid lines          
+plt.legend()                            
 plt.show()
 
-
-plt.figure()
+#plot the phase plane of x against y
 for mu in muValues:
     t, x, y = VanderPolModel2(x0, y0, T, h, mu)
+    plt.figure()
     plt.plot(x,y, label=f"μ={mu}")
-plt.xlabel("x")
-plt.ylabel("y")
-plt.title("Phase plane of trajectories and nullclines")       #better title?
-plt.grid(True)
-
-#plot y nullcline at x=0
-plt.axvline(x=0, color="red", linestyle='--', label="y-nullcline")
-
-#plot x nullcline at y=x-(1/3)x^3
-#plt.plot(x, x-(1/3)*x**3 , color='purple', linestyle='--', label="x-nullcline")
-
-# x-nullcline: y = x - x^3/3
-xGrid = np.linspace(-3, 3, 400)   # choose a nice symmetric range
-yNullcline = xGrid - (1/3)*xGrid**3
-plt.plot(xGrid, yNullcline, color="purple", linestyle="--", label="x-nullcline")
+    plt.xlabel("x(t)")
+    plt.ylabel("y(t)")
+    plt.title(f"Phase plane of trajectories with μ={mu} and nullclines")       #better title?
+    plt.grid(True)
+    
+    #plot y nullcline at x=0
+    plt.axvline(x=0, color="red", linestyle='--', label="y-nullcline")
+    
+    # x-nullcline: y = x - x^3/3
+    xGrid = np.linspace(-2.5, 2.5, 400)  
+    yNullcline = xGrid - (1/3)*xGrid**3
+    plt.plot(xGrid, yNullcline, color="purple", linestyle="--", label="x-nullcline")
 
 plt.legend()
 plt.show()
 
+print("working")
+
+#streamplot when mu = 4
+def stream_plot(x_range=(-0.5, 0.5, 0.1), y_range=(-0.5, 0.5, 0.1)):
+    x = np.arange(*x_range)# * turns tuple into individual function arguments
+    y = np.arange(*y_range)
+    
+    # Create meshgrid
+    X, Y = np.meshgrid(x, y)
+    
+    # Vector field
+    xdot = X - (1/3)*X**3 - Y
+    ydot = (1/4) * X
+
+    #Plotting
+    plt.figure()
+    plt.streamplot(X,Y,xdot,ydot)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('Solution trajectories illustrated using streamplot when μ=4',
+         loc='left')
+    plt.axis('equal')
+    plt.grid(True)
+    plt.show()
+    return None
+
+stream_plot(x_range=(-0.5, 0.5, 0.1), y_range=(-0.5, 0.5, 0.1))
+plt.show()
+
+#streamplot when mu = 0.1
+def stream_plot(x_range=(-0.5, 0.5, 0.1), y_range=(-0.5, 0.5, 0.1)):
+    x = np.arange(*x_range)# * turns tuple into individual function arguments
+    y = np.arange(*y_range)
+    
+    # Create meshgrid
+    X, Y = np.meshgrid(x, y)
+    
+    # Vector field
+    xdot = X - (1/3)*X**3 - Y
+    ydot = (1/0.1) * X
+
+    #Plotting
+    plt.figure()
+    plt.streamplot(X,Y,xdot,ydot)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('Solution trajectories illustrated using streamplot when μ=0.1',
+         loc='left')
+    plt.axis('equal')
+    plt.grid(True)
+    plt.show()
+    return None
+
+stream_plot(x_range=(-0.5, 0.5, 0.1), y_range=(-0.5, 0.5, 0.1))
+plt.show()
+
+
+#streamplot when mu = 100
+def stream_plot(x_range=(-0.5, 0.5, 0.1), y_range=(-0.5, 0.5, 0.1)):
+    x = np.arange(*x_range)# * turns tuple into individual function arguments
+    y = np.arange(*y_range)
+    
+    # Create meshgrid
+    X, Y = np.meshgrid(x, y)
+    
+    # Vector field
+    xdot = X - (1/3)*X**3 - Y
+    ydot = (1/100) * X
+
+    #Plotting
+    plt.figure()
+    plt.streamplot(X,Y,xdot,ydot)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('Solution trajectories illustrated using streamplot when μ=100',
+         loc='left')
+    plt.axis('equal')
+    plt.grid(True)
+    plt.show()
+    return None
+
+stream_plot(x_range=(-0.5, 0.5, 0.1), y_range=(-0.5, 0.5, 0.1))
+plt.show()
