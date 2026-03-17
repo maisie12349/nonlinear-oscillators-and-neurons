@@ -78,3 +78,16 @@ class ModelParams:
         self.mu = mu
         self.a = a
         self.b = b
+
+def setFont():
+    import matplotlib.pyplot as plt
+    import matplotlib.font_manager as fm
+    import matplotlib
+    import os
+
+    _font_path = os.path.join(
+        matplotlib.get_data_path(), "fonts", "ttf", "STIXGeneral.ttf"
+    )
+    fm.fontManager.addfont(_font_path)
+    _prop = fm.FontProperties(fname=_font_path)
+    plt.rcParams["font.family"] = _prop.get_name()
